@@ -1,4 +1,7 @@
 import { FormEvent, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { AxiosError } from 'axios';
+import { loginApi } from '../../features/auth/api';
 import useForm from '../../hooks/useForm';
 
 const initialValues: LoginForm = {
@@ -7,13 +10,35 @@ const initialValues: LoginForm = {
 };
 
 function Login() {
-  const { values, handleChange } = useForm({ initialValues });
+  const navigate = useNavigate();
+  const { values, handleChange, resetValues } = useForm({ initialValues });
   const [error, setError] = useState<string>('');
 
-  const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!values.profileId || !values.password) {
       return setError('모든 항목을 입력하세요.');
+    }
+
+    const loginUser: LoginForm = values;
+    try {
+      const response = await loginApi(loginUser);
+      if (response) {
+        if (response.status === 200) {
+          localStorage.setItem('token', response.data.token);
+          navigate('/');
+        } else {
+          setError(response.data.message);
+          resetValues();
+        }
+      }
+    } catch (error) {
+      if (error instanceof AxiosError) {
+        setError(
+          error.response?.data.message ||
+            `서버가 불안정합니다. 다시 시도해주세요.`,
+        );
+      }
     }
   };
 

@@ -1,4 +1,7 @@
 import { FocusEvent, FormEvent, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { AxiosError } from 'axios';
+import { signUpApi } from '../../features/auth/api';
 import useForm from '../../hooks/useForm';
 import { validation } from '../../utils/regex';
 
@@ -10,8 +13,10 @@ const initialValues: SignUpForm = {
 };
 
 function SignUp() {
-  const { values, handleChange } = useForm({ initialValues });
+  const navigate = useNavigate();
+  const { values, handleChange, resetValues } = useForm({ initialValues });
   const [errors, setErrors] = useState<SignUpForm>(initialValues);
+  const [error, setError] = useState<string>('');
 
   const checkSamePassword = (): string => {
     const { password, passwordConfirm } = values;
@@ -40,28 +45,67 @@ function SignUp() {
       return setErrors({ ...errors, [name]: '필수 항목입니다.' });
     }
 
-    if (name === 'passwordConfirm') {
-      return setErrors({ ...errors, [name]: checkSamePassword() });
-    }
+    const getMessage = (): string => {
+      return validation[name as keyof typeof validation](value) || '';
+    };
 
-    const message = validation[name as keyof typeof validation](value);
-    if (name === 'password' && values.passwordConfirm) {
-      return setErrors({
-        ...errors,
-        [name as keyof typeof validation]: message,
-        passwordConfirm: checkSamePassword(),
-      });
-    }
+    switch (name) {
+      case 'passwordConfirm':
+        return setErrors({ ...errors, passwordConfirm: checkSamePassword() });
 
-    return setErrors({ ...errors, [name]: message });
+      case 'password':
+        if (values.passwordConfirm) {
+          setErrors({
+            ...errors,
+            passwordConfirm: checkSamePassword(),
+          });
+        }
+        return setErrors({
+          ...errors,
+          password: getMessage(),
+        });
+
+      case 'profileId':
+      case 'name':
+      default:
+        return setErrors({
+          ...errors,
+          [name]: getMessage(),
+        });
+    }
   };
 
-  const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     for (let key in values) {
       const value = values[key as keyof typeof values];
       if (!value) {
         return checkBlank();
+      }
+    }
+
+    const { profileId, name, password } = values;
+    const newUser: AuthForm = {
+      profileId,
+      name,
+      password,
+    };
+    try {
+      const response = await signUpApi(newUser);
+      if (response) {
+        if (response.status === 201) {
+          navigate('/login');
+        } else {
+          setError(response.data.message);
+          resetValues();
+        }
+      }
+    } catch (error) {
+      if (error instanceof AxiosError) {
+        setError(
+          error.response?.data.message ||
+            `서버가 불안정합니다. 다시 시도해주세요.`,
+        );
       }
     }
   };
@@ -120,6 +164,7 @@ function SignUp() {
             <div>{errors.passwordConfirm}</div>
           </label>
         </div>
+        <div>{error}</div>
         <button type="submit">Sign Up</button>
       </form>
     </div>
