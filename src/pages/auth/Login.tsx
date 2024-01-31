@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { AxiosError } from 'axios';
 import { loginApi } from '../../features/auth/api';
 import useForm from '../../hooks/useForm';
+import { AuthContainer, Label } from './SignUp';
 
 const initialValues: LoginForm = {
   profileId: '',
@@ -43,11 +44,11 @@ function Login() {
   };
 
   return (
-    <div>
+    <AuthContainer>
       <h1>Login</h1>
       <form onSubmit={handleSubmit}>
         <div>
-          <label>
+          <Label>
             ID
             <input
               type="text"
@@ -56,8 +57,8 @@ function Login() {
               placeholder="아이디를 입력해주세요."
               onChange={handleChange}
             />
-          </label>
-          <label>
+          </Label>
+          <Label>
             Password
             <input
               type="password"
@@ -66,12 +67,12 @@ function Login() {
               placeholder="비밀번호를 입력해주세요."
               onChange={handleChange}
             />
-          </label>
+          </Label>
         </div>
         <div>{error}</div>
         <button type="submit">Log In</button>
       </form>
-    </div>
+    </AuthContainer>
   );
 }
 

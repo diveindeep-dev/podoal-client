@@ -4,6 +4,66 @@ import { AxiosError } from 'axios';
 import { checkDuplicateIdApi, signUpApi } from '../../features/auth/api';
 import useForm from '../../hooks/useForm';
 import { validation } from '../../utils/regex';
+import styled from 'styled-components';
+import { COLOR, FONT } from '../../styles/Variables';
+import { ButtonStyle, ContentContainer } from '../../styles/Common';
+
+interface StyleProps {
+  $passColor?: string;
+}
+
+const Error = styled.div<StyleProps>`
+  height: 20px;
+  color: ${({ $passColor }) =>
+    $passColor ? COLOR[$passColor as keyof typeof COLOR] : COLOR.red};
+  font-size: 0.9rem;
+  font-weight: 400;
+  text-align: end;
+`;
+
+export const Label = styled.label`
+  display: flex;
+  flex-direction: column;
+  padding: 10px 0;
+  color: ${COLOR.text};
+  font-weight: 500;
+
+  input {
+    margin: 5px 0;
+    padding: 5px 0;
+    font-size: 0.9rem;
+    border-bottom: 1px solid ${COLOR.textSub};
+    &:focus {
+      border-bottom: 1px solid ${COLOR.primary};
+    }
+  }
+  &:focus-within {
+    color: ${COLOR.primary};
+    font-weight: 700;
+  }
+`;
+
+export const AuthContainer = styled.div`
+  ${ContentContainer}
+  h1 {
+    font-family: ${FONT.accent};
+  }
+
+  form {
+    padding: 30px 0;
+    font-family: ${FONT.accent};
+
+    button {
+      ${ButtonStyle}
+      width: 100%;
+      padding: 15px;
+      margin: 10px 0;
+      color: ${COLOR.bg};
+      background-color: ${COLOR.primary};
+      font-weight: 500;
+    }
+  }
+`;
 
 const initialValues: SignUpForm = {
   profileId: '',
@@ -17,6 +77,7 @@ function SignUp() {
   const { values, handleChange, resetValues } = useForm({ initialValues });
   const [errors, setErrors] = useState<SignUpForm>(initialValues);
   const [error, setError] = useState<string>('');
+  const [isPass, setIsPass] = useState<boolean | null>(null);
 
   const checkSamePassword = (): string => {
     const { password, passwordConfirm } = values;
@@ -70,6 +131,7 @@ function SignUp() {
           try {
             const response = await checkDuplicateIdApi(values.profileId);
             if (response.status === 200) {
+              setIsPass(true);
               return setErrors({
                 ...errors,
                 profileId: response.data.message,
@@ -77,6 +139,7 @@ function SignUp() {
             }
           } catch (error) {
             if (error instanceof AxiosError) {
+              setIsPass(false);
               return setErrors({
                 ...errors,
                 profileId:
@@ -86,6 +149,7 @@ function SignUp() {
             }
           }
         } else {
+          setIsPass(null);
           return setErrors({
             ...errors,
             profileId: getMessage(),
@@ -111,38 +175,47 @@ function SignUp() {
       }
     }
 
-    const { profileId, name, password } = values;
-    const newUser: AuthForm = {
-      profileId,
-      name,
-      password,
-    };
-    try {
-      const response = await signUpApi(newUser);
-      if (response) {
-        if (response.status === 201) {
-          navigate('/login');
-        } else {
-          setError(response.data.message);
-          resetValues();
+    if (!isPass) {
+      return setErrors({
+        ...errors,
+        profileId: '아이디를 중복체크해주세요.',
+      });
+    }
+
+    if (isPass && !errors.name && !errors.password && !errors.passwordConfirm) {
+      const newUser: AuthForm = {
+        profileId: values.profileId,
+        name: values.name,
+        password: values.password,
+      };
+
+      try {
+        const response = await signUpApi(newUser);
+        if (response) {
+          if (response.status === 201) {
+            navigate('/login');
+          } else {
+            setError(response.data.message);
+            resetValues();
+          }
         }
-      }
-    } catch (error) {
-      if (error instanceof AxiosError) {
-        setError(
-          error.response?.data.message ||
-            `서버가 불안정합니다. 다시 시도해주세요.`,
-        );
+      } catch (error) {
+        if (error instanceof AxiosError) {
+          setError(
+            error.response?.data.message ||
+              `서버가 불안정합니다. 다시 시도해주세요.`,
+          );
+        }
       }
     }
   };
 
   return (
-    <div>
+    <AuthContainer>
       <h1>Sign Up</h1>
       <form onSubmit={handleSubmit}>
         <div>
-          <label>
+          <Label>
             ID
             <input
               type="text"
@@ -152,9 +225,11 @@ function SignUp() {
               onChange={handleChange}
               onBlur={handleOnBlur}
             />
-            <div>{errors.profileId}</div>
-          </label>
-          <label>
+            <Error $passColor={isPass ? 'blue' : 'red'}>
+              {errors.profileId}
+            </Error>
+          </Label>
+          <Label>
             Name
             <input
               type="text"
@@ -164,9 +239,9 @@ function SignUp() {
               onChange={handleChange}
               onBlur={handleOnBlur}
             />
-            <div>{errors.name}</div>
-          </label>
-          <label>
+            <Error>{errors.name}</Error>
+          </Label>
+          <Label>
             Password
             <input
               type="password"
@@ -176,9 +251,9 @@ function SignUp() {
               onChange={handleChange}
               onBlur={handleOnBlur}
             />
-            <div>{errors.password}</div>
-          </label>
-          <label>
+            <Error>{errors.password}</Error>
+          </Label>
+          <Label>
             Password Confirm
             <input
               type="password"
@@ -188,13 +263,13 @@ function SignUp() {
               onChange={handleChange}
               onBlur={handleOnBlur}
             />
-            <div>{errors.passwordConfirm}</div>
-          </label>
+            <Error>{errors.passwordConfirm}</Error>
+          </Label>
         </div>
         <div>{error}</div>
-        <button type="submit">Sign Up</button>
+        <button type="submit">가입하기</button>
       </form>
-    </div>
+    </AuthContainer>
   );
 }
 
