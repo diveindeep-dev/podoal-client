@@ -1,7 +1,7 @@
 import { FocusEvent, FormEvent, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AxiosError } from 'axios';
-import { signUpApi } from '../../features/auth/api';
+import { checkDuplicateIdApi, signUpApi } from '../../features/auth/api';
 import useForm from '../../hooks/useForm';
 import { validation } from '../../utils/regex';
 
@@ -66,6 +66,33 @@ function SignUp() {
         });
 
       case 'profileId':
+        if (!getMessage()) {
+          try {
+            const response = await checkDuplicateIdApi(values.profileId);
+            if (response.status === 200) {
+              return setErrors({
+                ...errors,
+                profileId: response.data.message,
+              });
+            }
+          } catch (error) {
+            if (error instanceof AxiosError) {
+              return setErrors({
+                ...errors,
+                profileId:
+                  error.response?.data.message ||
+                  '서버가 불안정합니다. 잠시후 다시 시도해주세요.',
+              });
+            }
+          }
+        } else {
+          return setErrors({
+            ...errors,
+            profileId: getMessage(),
+          });
+        }
+        break;
+
       case 'name':
       default:
         return setErrors({
