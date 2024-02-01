@@ -1,5 +1,6 @@
 import { FormEvent } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useDispatch } from 'react-redux';
+import { fetchUserByToken } from '../../features/auth/slice';
 import { AxiosError } from 'axios';
 import { loginApi } from '../../features/auth/api';
 import useForm from '../../hooks/useForm';
@@ -12,7 +13,7 @@ const initialValues: LoginForm = {
 };
 
 function Login() {
-  const navigate = useNavigate();
+  const dispatch = useDispatch<AppDispatch>();
   const { values, handleChange, errors, setErrors, checkAllRequired } = useForm(
     {
       initialValues,
@@ -35,7 +36,7 @@ function Login() {
       if (response) {
         if (response.status === 200) {
           localStorage.setItem('token', response.data.token);
-          navigate('/');
+          dispatch(fetchUserByToken());
         }
       }
     } catch (error) {

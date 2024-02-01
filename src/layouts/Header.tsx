@@ -1,7 +1,24 @@
 import { Link } from 'react-router-dom';
+import { useDispatch, useSelector } from 'react-redux';
+import { logout } from '../features/auth/slice';
 import styled from 'styled-components';
 import { COLOR, FONT } from '../styles/Variables';
 import { ContentContainer, ButtonStyle } from '../styles/Common';
+
+const Logout = styled.div`
+  ${ButtonStyle}
+  color: ${COLOR.primary};
+  border: 1px solid ${COLOR.primary};
+  &:hover {
+    background-color: ${COLOR.bgSub};
+  }
+`;
+
+const User = styled.div`
+  margin: 0 10px;
+  font-size: 0.9rem;
+  font-family: ${FONT.accent};
+`;
 
 const Logo = styled(Link)`
   color: ${COLOR.primary};
@@ -49,16 +66,28 @@ const HEADER = styled.header`
 `;
 
 function Header() {
+  const loginUser = useSelector((state: State) => state.auth.loginUser);
+  const dispatch = useDispatch<AppDispatch>();
+
   return (
     <HEADER>
       <Logo to="/">PODOAL</Logo>
       <AuthContainer>
-        <LINK to={`/login`} className="login">
-          Login
-        </LINK>
-        <LINK to={`/signup`} className="signup">
-          Sign Up
-        </LINK>
+        {loginUser ? (
+          <>
+            <User>{loginUser.name}</User>
+            <Logout onClick={() => dispatch(logout())}>로그아웃</Logout>
+          </>
+        ) : (
+          <>
+            <LINK to="login" className="login">
+              Login
+            </LINK>
+            <LINK to="signup" className="signup">
+              Sign Up
+            </LINK>
+          </>
+        )}
       </AuthContainer>
     </HEADER>
   );
