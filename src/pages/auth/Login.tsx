@@ -1,9 +1,9 @@
-import { FormEvent, useState } from 'react';
+import { FormEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AxiosError } from 'axios';
 import { loginApi } from '../../features/auth/api';
 import useForm from '../../hooks/useForm';
-import { AuthContainer, Label } from './SignUp';
+import { AuthContainer, Error, Label } from './SignUp';
 import { toast } from '../../components/toast';
 
 const initialValues: LoginForm = {
@@ -13,12 +13,20 @@ const initialValues: LoginForm = {
 
 function Login() {
   const navigate = useNavigate();
-  const { values, handleChange, resetValues } = useForm({ initialValues });
+  const { values, handleChange, errors, setErrors, checkAllRequired } = useForm(
+    {
+      initialValues,
+    },
+  );
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (!values.profileId || !values.password) {
-      return setError('모든 항목을 입력하세요.');
+    for (let key in values) {
+      const value = values[key as keyof typeof values];
+      if (!value) {
+        return checkAllRequired();
+      }
+      setErrors(initialValues);
     }
 
     const loginUser: LoginForm = values;
@@ -54,6 +62,7 @@ function Login() {
               placeholder="아이디를 입력해주세요."
               onChange={handleChange}
             />
+            <Error>{errors.profileId}</Error>
           </Label>
           <Label>
             Password
@@ -64,9 +73,10 @@ function Login() {
               placeholder="비밀번호를 입력해주세요."
               onChange={handleChange}
             />
+            <Error>{errors.password}</Error>
           </Label>
         </div>
-        <button type="submit">Log In</button>
+        <button type="submit">로그인</button>
       </form>
     </AuthContainer>
   );

@@ -13,11 +13,11 @@ interface StyleProps {
   $passColor?: string;
 }
 
-const Error = styled.div<StyleProps>`
+export const Error = styled.div<StyleProps>`
   height: 20px;
   color: ${({ $passColor }) =>
     $passColor ? COLOR[$passColor as keyof typeof COLOR] : COLOR.red};
-  font-size: 0.9rem;
+  font-size: 0.8rem;
   font-weight: 400;
   text-align: end;
 `;
@@ -58,7 +58,7 @@ export const AuthContainer = styled.div`
       ${ButtonStyle}
       width: 100%;
       padding: 15px;
-      margin: 10px 0;
+      margin: 30px 0;
       color: ${COLOR.bg};
       background-color: ${COLOR.primary};
       font-weight: 500;
@@ -75,8 +75,9 @@ const initialValues: SignUpForm = {
 
 function SignUp() {
   const navigate = useNavigate();
-  const { values, handleChange, resetValues } = useForm({ initialValues });
-  const [errors, setErrors] = useState<SignUpForm>(initialValues);
+  const { values, handleChange, errors, setErrors, checkAllRequired } = useForm(
+    { initialValues },
+  );
   const [isPass, setIsPass] = useState<boolean | null>(null);
 
   const checkSamePassword = (): string => {
@@ -86,18 +87,6 @@ function SignUp() {
     } else {
       return '';
     }
-  };
-
-  const checkBlank = () => {
-    let newErrors: any = {};
-
-    for (let key in values) {
-      const value = values[key as keyof typeof values];
-      if (!value) {
-        newErrors[key] = '필수 항목입니다.';
-      }
-    }
-    setErrors({ ...errors, ...newErrors });
   };
 
   const handleOnBlur = async (e: FocusEvent<HTMLInputElement>) => {
@@ -171,7 +160,7 @@ function SignUp() {
     for (let key in values) {
       const value = values[key as keyof typeof values];
       if (!value) {
-        return checkBlank();
+        return checkAllRequired();
       }
     }
 
@@ -264,7 +253,7 @@ function SignUp() {
             <Error>{errors.passwordConfirm}</Error>
           </Label>
         </div>
-        <button type="submit">가입하기</button>
+        <button type="submit">회원가입</button>
       </form>
     </AuthContainer>
   );
