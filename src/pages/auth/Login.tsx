@@ -4,6 +4,7 @@ import { AxiosError } from 'axios';
 import { loginApi } from '../../features/auth/api';
 import useForm from '../../hooks/useForm';
 import { AuthContainer, Label } from './SignUp';
+import { toast } from '../../components/toast';
 
 const initialValues: LoginForm = {
   profileId: '',
@@ -13,7 +14,6 @@ const initialValues: LoginForm = {
 function Login() {
   const navigate = useNavigate();
   const { values, handleChange, resetValues } = useForm({ initialValues });
-  const [error, setError] = useState<string>('');
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -28,16 +28,13 @@ function Login() {
         if (response.status === 200) {
           localStorage.setItem('token', response.data.token);
           navigate('/');
-        } else {
-          setError(response.data.message);
-          resetValues();
         }
       }
     } catch (error) {
       if (error instanceof AxiosError) {
-        setError(
+        toast.error(
           error.response?.data.message ||
-            `서버가 불안정합니다. 다시 시도해주세요.`,
+            '서버가 불안정합니다. 다시 시도해주세요.',
         );
       }
     }
@@ -69,7 +66,6 @@ function Login() {
             />
           </Label>
         </div>
-        <div>{error}</div>
         <button type="submit">Log In</button>
       </form>
     </AuthContainer>

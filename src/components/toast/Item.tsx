@@ -32,12 +32,11 @@ const ProgressBar = styled.div<ToastStyle>`
 
 const Icon = styled.div`
   ${flexCenter}
-  font-size: 1.5rem;
+  font-size: 2rem;
 `;
 
 const Message = styled.div`
   padding: 0 10px;
-  font-size: 0.8rem;
 `;
 
 const Wrapper = styled.div`
@@ -50,13 +49,12 @@ const Div = styled.div<ToastStyle>`
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 8px 10px 10px;
+  padding: 10px;
   margin: 5px 0;
   width: 60%;
-  background-color: ${COLOR.bgSub};
+  background-color: ${COLOR.bg};
   color: ${COLOR.text};
   font-family: ${FONT.body};
-  font-size: 0.9rem;
   border-radius: 30px;
   border: 1px solid ${({ type }) => COLOR.toast[type]};
   overflow: hidden;

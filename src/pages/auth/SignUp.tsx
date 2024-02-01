@@ -7,6 +7,7 @@ import { validation } from '../../utils/regex';
 import styled from 'styled-components';
 import { COLOR, FONT } from '../../styles/Variables';
 import { ButtonStyle, ContentContainer } from '../../styles/Common';
+import { toast } from '../../components/toast';
 
 interface StyleProps {
   $passColor?: string;
@@ -76,7 +77,6 @@ function SignUp() {
   const navigate = useNavigate();
   const { values, handleChange, resetValues } = useForm({ initialValues });
   const [errors, setErrors] = useState<SignUpForm>(initialValues);
-  const [error, setError] = useState<string>('');
   const [isPass, setIsPass] = useState<boolean | null>(null);
 
   const checkSamePassword = (): string => {
@@ -193,17 +193,15 @@ function SignUp() {
         const response = await signUpApi(newUser);
         if (response) {
           if (response.status === 201) {
+            toast.success('가입되었습니다.');
             navigate('/login');
-          } else {
-            setError(response.data.message);
-            resetValues();
           }
         }
       } catch (error) {
         if (error instanceof AxiosError) {
-          setError(
+          toast.error(
             error.response?.data.message ||
-              `서버가 불안정합니다. 다시 시도해주세요.`,
+              '서버가 불안정합니다. 다시 시도해주세요.',
           );
         }
       }
@@ -266,7 +264,6 @@ function SignUp() {
             <Error>{errors.passwordConfirm}</Error>
           </Label>
         </div>
-        <div>{error}</div>
         <button type="submit">가입하기</button>
       </form>
     </AuthContainer>
