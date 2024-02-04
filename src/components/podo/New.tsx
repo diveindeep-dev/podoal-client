@@ -1,4 +1,4 @@
-import { ChangeEvent, FormEvent, useEffect, useState } from 'react';
+import { ChangeEvent, FormEvent, useState } from 'react';
 import useForm from '../../hooks/useForm';
 import { AxiosError } from 'axios';
 import { addPodoApi } from '../../features/podo/api';
@@ -113,13 +113,7 @@ function NewPodo() {
   const { values, handleChange, resetValues, setValues } = useForm({
     initialValues,
   });
-  const [disabled, setDisabled] = useState<boolean>(true);
   const [tagString, setTagString] = useState<string>('');
-
-  useEffect(() => {
-    const { title } = values;
-    title ? setDisabled(false) : setDisabled(true);
-  }, [values]);
 
   const handleChangeTag = (e: ChangeEvent<HTMLInputElement>) => {
     const { value } = e.target;
@@ -197,7 +191,7 @@ function NewPodo() {
             </Label>
           </div>
         </Wrapper>
-        <button type="submit" disabled={disabled}>
+        <button type="submit" disabled={values.title.length === 0}>
           등록
         </button>
       </form>
