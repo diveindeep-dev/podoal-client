@@ -2,23 +2,13 @@ import { ChangeEvent, FormEvent, useState } from 'react';
 import useForm from '../../hooks/useForm';
 import { AxiosError } from 'axios';
 import { addPodoApi } from '../../features/podo/api';
-import { LuGrape } from 'react-icons/lu';
 import { IoIosPricetags, IoMdTrophy } from 'react-icons/io';
 import { toast } from '../toast';
+import Picker from '../picker';
+import Icon from '../Icon';
 import styled from 'styled-components';
-import { ButtonStyle, ContentContainer, flexCenter } from '../../styles/Common';
+import { ButtonStyle, ContentContainer } from '../../styles/Common';
 import { COLOR } from '../../styles/Variables';
-
-const Icon = styled.div`
-  ${flexCenter}
-  width: 50px;
-  height: 50px;
-  margin-right: 15px;
-  color: ${COLOR.bg};
-  font-size: 1.7rem;
-  background-color: ${COLOR.primary};
-  border-radius: 50%;
-`;
 
 const Label = styled.label`
   display: flex;
@@ -80,6 +70,7 @@ const Div = styled.div`
   ${ContentContainer}
 
   form {
+    position: relative;
     display: flex;
     flex-direction: column;
     button {
@@ -104,6 +95,7 @@ const Div = styled.div`
 `;
 
 const initialValues: PodoForm = {
+  icon: '',
   title: '',
   reward: '',
   tags: [],
@@ -114,6 +106,8 @@ function NewPodo() {
     initialValues,
   });
   const [tagString, setTagString] = useState<string>('');
+  const [isOpenPicker, setIsOpenPicker] = useState<boolean>(false);
+  const [icon, setIcon] = useState<string>('');
 
   const handleChangeTag = (e: ChangeEvent<HTMLInputElement>) => {
     const { value } = e.target;
@@ -126,17 +120,16 @@ function NewPodo() {
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (!values.title) {
-      return setDisabled(false);
-    }
+    if (!values.title) return;
 
-    const newPodo: PodoForm = values;
+    const newPodo: PodoForm = { ...values, icon };
     try {
       const response = await addPodoApi(newPodo);
       if (response) {
         if (response.status === 201) {
           resetValues();
           setTagString('');
+          setIcon('');
           toast.success('등록되었습니다.');
         }
       }
@@ -154,10 +147,8 @@ function NewPodo() {
     <Div>
       <form onSubmit={handleSubmit}>
         <Wrapper>
-          <label>
-            <Icon>
-              <LuGrape />
-            </Icon>
+          <label onClick={() => setIsOpenPicker(true)}>
+            <Icon name={icon} isHover={true} />
           </label>
           <div>
             <Label className="goal">
@@ -191,6 +182,13 @@ function NewPodo() {
             </Label>
           </div>
         </Wrapper>
+        {isOpenPicker && (
+          <Picker
+            tabs={['Emoji', 'Icon']}
+            handleClose={setIsOpenPicker}
+            handleSetIcon={setIcon}
+          />
+        )}
         <button type="submit" disabled={values.title.length === 0}>
           등록
         </button>

@@ -25,3 +25,5 @@ export const validation = {
   name: nameValidation,
   password: passwordValidation,
 };
+
+export const upperCaseRegex: RegExp = /^[A-Z]/;
