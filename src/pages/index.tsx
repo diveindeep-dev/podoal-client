@@ -1,14 +1,14 @@
 import { useEffect, useState } from 'react';
 import { AxiosError } from 'axios';
 import { getPodoListByPageApi } from '../features/podo/api';
+import useInfiniteScroll from '../hooks/useInfiniteScroll';
 import NewPodo from '../components/podo/New';
 import PodoList from '../components/podo/List';
 import { toast } from '../components/toast';
 
 function Index() {
   const [list, setList] = useState<Podo[]>([]);
-  const [page, setPage] = useState<number>(1);
-  const [target, setTarget] = useState<HTMLDivElement | null>(null);
+  const { page, target, setTarget } = useInfiniteScroll();
 
   const getList = async () => {
     try {
@@ -30,25 +30,6 @@ function Index() {
       }
     }
   };
-
-  const onIntersect: IntersectionObserverCallback = (entreis) => {
-    entreis.forEach((entry) => {
-      if (entry.isIntersecting) {
-        setPage((prev) => prev + 1);
-      }
-    });
-  };
-
-  useEffect(() => {
-    let observer: IntersectionObserver;
-
-    if (target) {
-      observer = new IntersectionObserver(onIntersect, { threshold: 0.1 });
-      observer.observe(target);
-    }
-
-    return () => observer && observer.disconnect();
-  }, [target]);
 
   useEffect(() => {
     getList();
