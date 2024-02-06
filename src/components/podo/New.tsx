@@ -7,7 +7,7 @@ import { toast } from '../toast';
 import Picker from '../picker';
 import Icon from '../Icon';
 import styled from 'styled-components';
-import { ButtonStyle, ContentContainer } from '../../styles/Common';
+import { ButtonStyle, ContentContainer, flexGlow } from '../../styles/Common';
 import { COLOR } from '../../styles/Variables';
 
 const Label = styled.label`
@@ -57,13 +57,13 @@ const Label = styled.label`
   }
 `;
 
+const LabelContainer = styled.div`
+  ${flexGlow}
+  flex-direction: column;
+`;
+
 const Wrapper = styled.div`
   display: flex;
-  div {
-    display: flex;
-    flex-direction: column;
-    flex-grow: 1;
-  }
 `;
 
 const Div = styled.div`
@@ -147,10 +147,10 @@ function NewPodo() {
     <Div>
       <form onSubmit={handleSubmit}>
         <Wrapper>
-          <label onClick={() => setIsOpenPicker(true)}>
+          <div onClick={() => setIsOpenPicker(true)}>
             <Icon name={icon} isHover={true} />
-          </label>
-          <div>
+          </div>
+          <LabelContainer>
             <Label className="goal">
               <input
                 type="text"
@@ -180,7 +180,7 @@ function NewPodo() {
                 onChange={handleChangeTag}
               />
             </Label>
-          </div>
+          </LabelContainer>
         </Wrapper>
         {isOpenPicker && (
           <Picker
