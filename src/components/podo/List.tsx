@@ -6,6 +6,7 @@ import Tag from '../Tag';
 import styled from 'styled-components';
 import { ContentContainer, flexCenter } from '../../styles/Common';
 import { COLOR, FONT } from '../../styles/Variables';
+import { Link } from 'react-router-dom';
 
 const CreatedDate = styled.div`
   padding-top: 3px;
@@ -44,6 +45,7 @@ const Tags = styled.div`
 const DetailBody = styled.div`
   display: flex;
   align-items: center;
+  z-index: 6;
 
   &.user {
     div {
@@ -108,8 +110,21 @@ const Title = styled.div`
   align-items: center;
 `;
 
+const LinkPodo = styled(Link)`
+  position: absolute;
+  z-index: 5;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  &:hover {
+    background-color: #a8a7be1f;
+  }
+`;
+
 const Item = styled.div`
   ${ContentContainer}
+  position: relative;
   display: flex;
   flex-direction: column;
   border-bottom: 1px solid ${COLOR.bgSub};
@@ -122,7 +137,7 @@ interface PodoListProps {
 function PodoList({ list }: PodoListProps) {
   const isPodo = list.length > 0;
   const items = list.map((item: Podo, i: number) => {
-    const { icon, title, user, podoals, createdAt, tags, reward } = item;
+    const { icon, title, user, podoals, createdAt, tags, reward, _id } = item;
     const dateFormat =
       differenceInDays(new Date(), createdAt) < 30
         ? formatDistanceToNow(createdAt, {
@@ -132,6 +147,7 @@ function PodoList({ list }: PodoListProps) {
 
     return (
       <Item key={i}>
+        <LinkPodo to={`/podo/${_id}`} />
         <Title>
           <Icon name={icon || ''} />
           <Text>{title}</Text>

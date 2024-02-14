@@ -7,3 +7,6 @@ export const addPodoApi = (newPodo: PodoForm): Promise<AxiosResponse> =>
 export const getPodoListByPageApi = async (
   page: number,
 ): Promise<AxiosResponse> => axios.get(`/api/podo/list/${page}`);
+
+export const getPodoByIdApi = (id: string): Promise<AxiosResponse> =>
+  axios.get(`/api/podo/${id}`);

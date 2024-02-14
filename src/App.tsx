@@ -7,6 +7,7 @@ import Layout from './layouts';
 import Index from './pages';
 import SignUp from './pages/auth/SignUp';
 import Login from './pages/auth/Login';
+import Podo from './pages/podo';
 
 function App() {
   const dispatch = useDispatch<AppDispatch>();
@@ -34,6 +35,7 @@ function App() {
             path="/login"
             element={isAuthenticated ? <Navigate replace to="/" /> : <Login />}
           />
+          <Route path="/podo/:podoId" element={<Podo />} />
         </Routes>
       </Layout>
     </>
